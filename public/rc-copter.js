@@ -1,11 +1,9 @@
 var stage = new PIXI.Stage(0x66FF99);
-var renderer = PIXI.autoDetectRenderer(400, 300);
+var renderer = new PIXI.CanvasRenderer(800, 600);
 
-document.onload = function(){
-  document.body.appendChild(renderer.view);
-};
+document.body.appendChild(renderer.view);
 
-var chopperTexture = PIXI.Texture.fromImage("chopper.jpg");
+var chopperTexture = PIXI.Texture.fromImage("chopper.png");
 var chopper = new PIXI.Sprite(chopperTexture);
 
 chopper.anchor.x = 0.5;
@@ -15,11 +13,10 @@ chopper.position.y = 150;
 
 stage.addChild(chopper);
 
-var animate = function(){
+function animate(){
   requestAnimFrame(animate);
-  chopper.rotation += 0.1;
+  chopper.rotation += 0.01;
   renderer.render(stage);
 };
 
 requestAnimFrame(animate);
-
