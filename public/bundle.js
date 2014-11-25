@@ -45,18 +45,18 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	__webpack_require__(4);
-	__webpack_require__(1)
+	__webpack_require__(1);
 
 
 /***/ },
 /* 1 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var PIXI = __webpack_require__(2)
-	var keydrown = __webpack_require__(3)
+	var PIXI = __webpack_require__(2);
+	var keydrown = __webpack_require__(3);
 	var stage = new PIXI.Stage(0x66FF99);
 	var renderer = new PIXI.CanvasRenderer(800, 600);
-	window.requestAnimFrame = window.requestAnimationFrame;
+	var requestAnimFrame = window.requestAnimationFrame;
 
 	document.body.appendChild(renderer.view);
 
@@ -70,7 +70,7 @@
 
 	stage.addChild(chopper);
 
-	function animate(){
+	var animate = function () {
 	  requestAnimFrame(animate);
 	  chopper.rotation += 0.01;
 	  renderer.render(stage);

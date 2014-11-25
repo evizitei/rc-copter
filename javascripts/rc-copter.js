@@ -1,8 +1,8 @@
-var PIXI = require("./vendor/pixi.dev.js")
-var keydrown = require("./vendor/keydrown.js")
+var PIXI = require("./vendor/pixi.dev.js");
+var keydrown = require("./vendor/keydrown.js");
 var stage = new PIXI.Stage(0x66FF99);
 var renderer = new PIXI.CanvasRenderer(800, 600);
-window.requestAnimFrame = window.requestAnimationFrame;
+var requestAnimFrame = window.requestAnimationFrame;
 
 document.body.appendChild(renderer.view);
 
@@ -16,7 +16,7 @@ chopper.position.y = 150;
 
 stage.addChild(chopper);
 
-function animate(){
+var animate = function () {
   requestAnimFrame(animate);
   chopper.rotation += 0.01;
   renderer.render(stage);
