@@ -15,5 +15,8 @@
     "colors": "1.0.3"
   },
   "analyze": true,
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "webpack": "^1.4.13"
+  }
 }
