@@ -4,8 +4,11 @@
   "description": "a game to play with pixi.js",
   "author": "Ethan Vizitei <ethan.vizitei@gmail.com>",
   "scripts": {
-    "test": "vows --spec --isolate",
     "start": "node node_modules/http-server/bin/http-server"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/evizitei/rc-copter"
   },
   "dependencies": {
     "http-server": "0.7.3",
