@@ -1,5 +1,8 @@
+var PIXI = require("./vendor/pixi.dev.js")
+var keydrown = require("./vendor/keydrown.js")
 var stage = new PIXI.Stage(0x66FF99);
 var renderer = new PIXI.CanvasRenderer(800, 600);
+window.requestAnimFrame = window.requestAnimationFrame;
 
 document.body.appendChild(renderer.view);
 

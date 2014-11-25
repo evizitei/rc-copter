@@ -17,6 +17,7 @@
   "analyze": true,
   "license": "MIT",
   "devDependencies": {
-    "webpack": "^1.4.13"
+    "webpack": "^1.4.13",
+    "nodelint": "0.6.2"
   }
 }
