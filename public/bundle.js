@@ -72,7 +72,7 @@
 
 	var animate = function () {
 	  requestAnimFrame(animate);
-	  chopper.rotation += 0.01;
+	  //chopper.rotation += 0.1;
 	  renderer.render(stage);
 	};
 
