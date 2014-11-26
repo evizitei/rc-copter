@@ -2,7 +2,6 @@ A simple pixi.js game to explore webpack.
 
 do "npm install" before anything else
 
-TO RUN: use "npm start"
-TO LINT YOUR CHANGES:  use "./clean"
-TO COMPILE ASSETS:  use "./compile-assets"
-TO PERPETUALLY COMPILE: use "./watch-assets"
+TO RUN: use "npm start", then visit "http://localhost:8080" in a browser
+
+TO COMPILE ASSETS:  use "gulp webpack:build"
