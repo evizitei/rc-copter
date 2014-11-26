@@ -1,5 +1,7 @@
 A simple pixi.js game to explore webpack.
 
+Play the game live here: https://rc-copter.herokuapp.com/
+
 1) Arrow keys move your chopper
 
 2) dodge the paper airplanes (score at the bottom)
