@@ -44,7 +44,7 @@
 /* 0 */
 /***/ function(module, exports, __webpack_require__) {
 
-	__webpack_require__(4);
+	__webpack_require__(5);
 	__webpack_require__(1);
 
 
@@ -52,11 +52,13 @@
 /* 1 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var PIXI = __webpack_require__(2);
-	var keydrown = __webpack_require__(3);
+	var PIXI = __webpack_require__(3);
+	var keydrown = __webpack_require__(4);
+	var ChopperMovement = __webpack_require__(2);
 	var stage = new PIXI.Stage(0x66FF99);
 	var renderer = new PIXI.CanvasRenderer(800, 600);
 	var requestAnimFrame = window.requestAnimationFrame;
+
 
 	document.body.appendChild(renderer.view);
 
@@ -70,10 +72,25 @@
 
 	stage.addChild(chopper);
 
+	chopMovement = new ChopperMovement(chopper);
+
+	keydrown.LEFT.down(function(){ chopMovement.increaseSpeed('left'); });
+	keydrown.RIGHT.down(function(){ chopMovement.increaseSpeed('right'); });
+	keydrown.UP.down(function(){ chopMovement.increaseSpeed('up'); });
+	keydrown.DOWN.down(function(){ chopMovement.increaseSpeed('down'); });
+
 	var animate = function () {
 	  requestAnimFrame(animate);
-	  //chopper.rotation += 0.1;
+	  //chopper.rotation += 0.01;
+	  chopMovement.move();
 	  renderer.render(stage);
+	  keydrown.tick();
+	  chopMovement.reduceSpeed({
+	    up: keydrown.UP.isDown(),
+	    down: keydrown.DOWN.isDown(),
+	    left: keydrown.LEFT.isDown(),
+	    right: keydrown.RIGHT.isDown(),
+	  });
 	};
 
 	requestAnimFrame(animate);
@@ -81,6 +98,50 @@
 
 /***/ },
 /* 2 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var ChopperMovement = function(sprite){
+	  this.chopper = sprite;
+	  this.speed = {
+	    left: 0,
+	    right: 0,
+	    up: 0,
+	    down: 0
+	  }
+	  this.maxSpeed = 5;
+	  this.minSpeed = 0;
+	  this.speedIncrement = 0.15;
+	  this.speedDecrement = 0.04;
+	};
+
+	ChopperMovement.prototype.increaseSpeed = function(direction){
+	  if(this.speed[direction] >= this.maxSpeed){
+	    this.speed[direction] = this.maxSpeed;
+	  }else{
+	    this.speed[direction] += this.speedIncrement;
+	  }
+	};
+
+	ChopperMovement.prototype.move = function(){
+	  this.chopper.position.x += (this.speed.right - this.speed.left);
+	  this.chopper.position.y += (this.speed.down - this.speed.up);
+	};
+
+	ChopperMovement.prototype.reduceSpeed = function(keyMap){
+	  Object.keys(keyMap).forEach(function(key){
+	    if((!keyMap[key]) && this.speed[key] > 0){
+	      this.speed[key] -= this.speedDecrement;
+	    }else if(this.speed[key] < 0){
+	      this.speed[key] = 0;
+	    }
+	  }, this);
+	};
+
+	module.exports = ChopperMovement;
+
+
+/***/ },
+/* 3 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -18267,7 +18328,7 @@
 	}).call(this);
 
 /***/ },
-/* 3 */
+/* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/*! keydrown - v1.1.3 - 2014-09-22 - http://jeremyckahn.github.com/keydrown */
@@ -18701,16 +18762,16 @@
 
 
 /***/ },
-/* 4 */
+/* 5 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(5);
+	var content = __webpack_require__(6);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
-	var update = __webpack_require__(6)(content, {});
+	var update = __webpack_require__(7)(content, {});
 	// Hot Module Replacement
 	if(false) {
 		// When the styles change, update the <style> tags
@@ -18724,14 +18785,14 @@
 	}
 
 /***/ },
-/* 5 */
+/* 6 */
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(7)();
+	exports = module.exports = __webpack_require__(8)();
 	exports.push([module.id, "body {\n  margin: 0;\n  padding: 0;\n  background-color: #000000;\n}\n", ""]);
 
 /***/ },
-/* 6 */
+/* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -18927,7 +18988,7 @@
 
 
 /***/ },
-/* 7 */
+/* 8 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = function() {
