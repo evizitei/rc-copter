@@ -14,6 +14,8 @@ var requestAnimFrame = window.requestAnimationFrame;
 var backgroundTexture = PIXI.Texture.fromImage("background.jpg");
 var chopperTexture = PIXI.Texture.fromImage("chopper.png");
 var airplaneTexture = PIXI.Texture.fromImage("plane.png");
+var gameOverTexture = PIXI.Texture.fromImage("gameover.jpg");
+var gameOverSprite = new PIXI.Sprite(gameOverTexture);
 var background = new PIXI.Sprite(backgroundTexture);
 var chopper = new PIXI.Sprite(chopperTexture);
 var planeCount = 4;
@@ -23,6 +25,14 @@ var planes = [];
 var collisionManager = new CollisionDetector();
 var chopMovement = new ChopperMovement(chopper);
 
+gameOverSprite.anchor.x = 0.5;
+gameOverSprite.anchor.y = 0.5;
+gameOverSprite.scale.x = 0.5;
+gameOverSprite.scale.y = 0.5;
+gameOverSprite.position.x = 400;
+gameOverSprite.position.y = 300;
+gameOverSprite.visible = false;
+
 var renderView = function(){
   var scoreLabel = document.getElementById("score");
   scoreLabel.innerHTML = score;
@@ -30,6 +40,7 @@ var renderView = function(){
 
 var resetGame = function(){
   gameOver = false;
+  gameOverSprite.visible = false;
   score = 0;
   chopMovement.reset();
   planes.forEach(function(controller){
@@ -74,6 +85,8 @@ for(var i = 0; i < 4; i++){
   stage.addChild(newPlaneSprite);
 }
 
+stage.addChild(gameOverSprite);
+
 
 keydrown.LEFT.down(function(){ chopMovement.increaseSpeed('left'); });
 keydrown.RIGHT.down(function(){ chopMovement.increaseSpeed('right'); });
@@ -109,6 +122,7 @@ var checkCollisions = function(chopper, obstacles){
   obstacleSprites = obstacles.map(function(obst){ return obst.sprite; });
   if(collisionManager.areCollisions(chopper.sprite, obstacleSprites)){
     gameOver = true;
+    gameOverSprite.visible = true;
   }
 };
 
