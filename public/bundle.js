@@ -44,7 +44,7 @@
 /* 0 */
 /***/ function(module, exports, __webpack_require__) {
 
-	__webpack_require__(5);
+	__webpack_require__(6);
 	__webpack_require__(1);
 
 
@@ -52,45 +52,74 @@
 /* 1 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var PIXI = __webpack_require__(3);
-	var keydrown = __webpack_require__(4);
+	var PIXI = __webpack_require__(4);
+	var keydrown = __webpack_require__(5);
 	var ChopperMovement = __webpack_require__(2);
+	var PlaneController = __webpack_require__(3);
+
 	var stage = new PIXI.Stage(0x66FF99);
 	var renderer = new PIXI.CanvasRenderer(800, 600);
 	var requestAnimFrame = window.requestAnimationFrame;
 
-
 	document.body.appendChild(renderer.view);
 
+	var backgroundTexture = PIXI.Texture.fromImage("background.jpg");
 	var chopperTexture = PIXI.Texture.fromImage("chopper.png");
+	var airplaneTexture = PIXI.Texture.fromImage("plane.png");
+	var background = new PIXI.Sprite(backgroundTexture);
 	var chopper = new PIXI.Sprite(chopperTexture);
+	var plane1 = new PIXI.Sprite(airplaneTexture);
+	var plane2 = new PIXI.Sprite(airplaneTexture);
 
-	chopper.anchor.x = 0.5;
-	chopper.anchor.y = 0.5;
+	background.position.x = 0;
+	background.position.y = 0;
+	background.scale.x = 1.25;
+	background.scale.y = 1.25;
+
 	chopper.position.x = 200;
 	chopper.position.y = 150;
 
+	stage.addChild(background);
 	stage.addChild(chopper);
+	stage.addChild(plane1);
+	stage.addChild(plane2);
 
-	chopMovement = new ChopperMovement(chopper);
+	var chopMovement = new ChopperMovement(chopper);
+	var oncomingPlane = new PlaneController(plane1, 'right');
+	var overtakingPlane = new PlaneController(plane2, 'left');
+	var planes = [oncomingPlane, overtakingPlane];
 
 	keydrown.LEFT.down(function(){ chopMovement.increaseSpeed('left'); });
 	keydrown.RIGHT.down(function(){ chopMovement.increaseSpeed('right'); });
 	keydrown.UP.down(function(){ chopMovement.increaseSpeed('up'); });
 	keydrown.DOWN.down(function(){ chopMovement.increaseSpeed('down'); });
 
-	var animate = function () {
-	  requestAnimFrame(animate);
-	  //chopper.rotation += 0.01;
-	  chopMovement.move();
-	  renderer.render(stage);
-	  keydrown.tick();
-	  chopMovement.reduceSpeed({
+	var buildKeyStateMap = function(){
+	  return {
 	    up: keydrown.UP.isDown(),
 	    down: keydrown.DOWN.isDown(),
 	    left: keydrown.LEFT.isDown(),
-	    right: keydrown.RIGHT.isDown(),
+	    right: keydrown.RIGHT.isDown()
+	  };
+	};
+
+	var processChopperMoves = function(){
+	  chopMovement.move();
+	  chopMovement.reduceSpeed(buildKeyStateMap());
+	  keydrown.tick();
+	};
+
+	var processPlaneMoves = function(controllers){
+	  controllers.forEach(function(plane){
+	    plane.onTick();
 	  });
+	};
+
+	var animate = function () {
+	  requestAnimFrame(animate);
+	  processChopperMoves();
+	  processPlaneMoves(planes);
+	  renderer.render(stage);
 	};
 
 	requestAnimFrame(animate);
@@ -102,6 +131,8 @@
 
 	var ChopperMovement = function(sprite){
 	  this.chopper = sprite;
+	  this.chopper.anchor.x = 0.5;
+	  this.chopper.anchor.y = 0.5;
 	  this.speed = {
 	    left: 0,
 	    right: 0,
@@ -181,6 +212,83 @@
 
 /***/ },
 /* 3 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var PlaneController = function(sprite, side){
+	  this.side = side;
+	  this.plane = sprite;
+	  this.plane.anchor.x = 0.5;
+	  this.plane.anchor.y = 0.5;
+	  this.plane.position.x = 900;
+	  this.plane.position.y = 50;
+	  this.lateralSpeed = 4;
+	  this.descentSpeed = 1;
+	  this.inFlight = false;
+	  if(this.side === 'right'){
+	    this.plane.scale.x = -1;
+	    this.initX = 900;
+	  }else{
+	    this.plane.scale.x = 1;
+	    this.initX = -100;
+	  }
+	};
+
+	PlaneController.prototype.onTick = function(){
+	  if(!this.inFlight){
+	    this.launch();
+	  }else{
+	    this.move();
+	  };
+	};
+
+	PlaneController.prototype.launch = function(){
+	  this.plane.position.x = this.initX;
+	  this.plane.position.y = this.generateHeight();
+	  this.lateralSpeed = (Math.random() * 5) + 2;
+	  this.descentSpeed = Math.random();
+	  this.inFlight = true;
+	};
+
+	PlaneController.prototype.move = function(){
+	  if(this.inFlight){
+	    if(this.isInFrame()){
+	      this.moveOnTick();
+	    }else{
+	      this.inFlight = false;
+	    }
+	  }
+	};
+
+	PlaneController.prototype.moveOnTick = function(){
+	  if(this.side === 'right'){
+	    this.plane.position.x -= this.lateralSpeed;
+	  }else{
+	    this.plane.position.x += this.lateralSpeed;
+	  }
+	  this.plane.position.y += this.descentSpeed;
+	};
+
+	PlaneController.prototype.isInFrame = function(){
+	  if(this.plane.position.y > 625){
+	    return false;
+	  }
+
+	  if(this.side === 'right'){
+	    return this.plane.position.x > -50;
+	  }else{
+	    return this.plane.position.x < 850;
+	  }
+	};
+
+	PlaneController.prototype.generateHeight = function(){
+	  return (Math.random() * 500) + 50;
+	};
+
+	module.exports = PlaneController;
+
+
+/***/ },
+/* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -18367,7 +18475,7 @@
 	}).call(this);
 
 /***/ },
-/* 4 */
+/* 5 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/*! keydrown - v1.1.3 - 2014-09-22 - http://jeremyckahn.github.com/keydrown */
@@ -18801,16 +18909,16 @@
 
 
 /***/ },
-/* 5 */
+/* 6 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(6);
+	var content = __webpack_require__(7);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
-	var update = __webpack_require__(7)(content, {});
+	var update = __webpack_require__(8)(content, {});
 	// Hot Module Replacement
 	if(false) {
 		// When the styles change, update the <style> tags
@@ -18824,14 +18932,14 @@
 	}
 
 /***/ },
-/* 6 */
+/* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(8)();
-	exports.push([module.id, "body {\n  margin: 0;\n  padding: 0;\n  background-color: #000000;\n}\n", ""]);
+	exports = module.exports = __webpack_require__(9)();
+	exports.push([module.id, "body {\n  margin: 0;\n  padding: 0;\n  background-color: #000000;\n}\n\ncanvas {\n  margin-left: 50px;\n  margin-top: 50px;\n}\n", ""]);
 
 /***/ },
-/* 7 */
+/* 8 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -19027,7 +19135,7 @@
 
 
 /***/ },
-/* 8 */
+/* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = function() {

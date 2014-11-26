@@ -1,5 +1,7 @@
 var ChopperMovement = function(sprite){
   this.chopper = sprite;
+  this.chopper.anchor.x = 0.5;
+  this.chopper.anchor.y = 0.5;
   this.speed = {
     left: 0,
     right: 0,
