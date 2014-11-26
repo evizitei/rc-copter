@@ -22,11 +22,14 @@ PlaneController.prototype.reset = function(){
   this.plane.position.y = 50;
 };
 
-PlaneController.prototype.onTick = function(){
+PlaneController.prototype.onTick = function(dodgedCallback){
   if(!this.inFlight){
     this.launch();
   }else{
-    this.move();
+    var ableToMove = this.move();
+    if(!ableToMove){
+      dodgedCallback.call();
+    }
   };
 };
 
@@ -42,8 +45,10 @@ PlaneController.prototype.move = function(){
   if(this.inFlight){
     if(this.isInFrame()){
       this.moveOnTick();
+      return true;
     }else{
       this.inFlight = false;
+      return false;
     }
   }
 };

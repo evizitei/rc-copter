@@ -7,6 +7,7 @@ var CollisionDetector = require('./collision_detector.js');
 var stage = new PIXI.Stage(0x66FF99);
 var renderer = new PIXI.CanvasRenderer(800, 600);
 var gameOver = false;
+var score = 0;
 var requestAnimFrame = window.requestAnimationFrame;
 
 //build all textures and sprites
@@ -25,12 +26,19 @@ var oncomingPlane = new PlaneController(plane1, 'right');
 var overtakingPlane = new PlaneController(plane2, 'left');
 var planes = [oncomingPlane, overtakingPlane];
 
+var renderView = function(){
+  var scoreLabel = document.getElementById("score");
+  scoreLabel.innerHTML = score;
+};
+
 var resetGame = function(){
   gameOver = false;
+  score = 0;
   chopMovement.reset();
   planes.forEach(function(controller){
     controller.reset();
   });
+  renderView();
 };
 
 var buildResetButton = function(){
@@ -40,7 +48,9 @@ var buildResetButton = function(){
     resetGame();
     return false;
   };
-  document.body.appendChild(button);
+  window.onload = function(){
+    document.getElementById("scoreboard").appendChild(button);
+  };
 };
 
 document.body.appendChild(renderer.view);
@@ -55,7 +65,6 @@ stage.addChild(background);
 stage.addChild(chopper);
 stage.addChild(plane1);
 stage.addChild(plane2);
-
 
 keydrown.LEFT.down(function(){ chopMovement.increaseSpeed('left'); });
 keydrown.RIGHT.down(function(){ chopMovement.increaseSpeed('right'); });
@@ -77,25 +86,29 @@ var processChopperMoves = function(){
   keydrown.tick();
 };
 
-var processPlaneMoves = function(controllers){
-  controllers.forEach(function(plane){
-    plane.onTick();
-  });
+var onCompleteDodge = function(){
+  score += 1;
 };
 
+var processPlaneMoves = function(controllers){
+  controllers.forEach(function(plane){
+    plane.onTick(function(){ onCompleteDodge(); });
+  });
+};
 
 var checkCollisions = function(chopper, obstacles){
   obstacleSprites = obstacles.map(function(obst){ return obst.sprite; });
   if(collisionManager.areCollisions(chopper.sprite, obstacleSprites)){
     gameOver = true;
   }
-}
+};
 
 var animate = function () {
   if(!gameOver){
     processChopperMoves();
     processPlaneMoves(planes);
     checkCollisions(chopMovement, planes);
+    renderView();
     renderer.render(stage);
   }
   requestAnimFrame(animate);
