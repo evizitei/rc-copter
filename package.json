@@ -24,5 +24,9 @@
     "gulp": "^3.8.10",
     "gulp-webpack": "^1.1.0",
     "gulp-util": "^3.0.1"
+  },
+  "subdomain": "rc-copter",
+  "engines": {
+    "node": "0.10.x"
   }
 }
