@@ -2,8 +2,10 @@ var PlaneController = function(sprite, side){
   this.sprite = sprite;
   this.side = side;
   this.plane = sprite;
-  this.lateralSpeed = 4;
-  this.descentSpeed = 1;
+  this.lateralSpeed = 0;
+  this.descentSpeed = 0;
+  this.maxSpeed = 6;
+  this.minSpeed = 2.5;
   if(this.side === 'right'){
     this.plane.scale.x = -1;
     this.initX = 900;
@@ -36,7 +38,7 @@ PlaneController.prototype.onTick = function(dodgedCallback){
 PlaneController.prototype.launch = function(){
   this.plane.position.x = this.initX;
   this.plane.position.y = this.generateHeight();
-  this.lateralSpeed = (Math.random() * 5) + 2;
+  this.lateralSpeed = (Math.random() * this.maxSpeed) + this.minSpeed;
   this.descentSpeed = Math.random();
   this.inFlight = true;
 };
@@ -75,7 +77,7 @@ PlaneController.prototype.isInFrame = function(){
 };
 
 PlaneController.prototype.generateHeight = function(){
-  return (Math.random() * 500) + 50;
+  return (Math.random() * 575) + 25;
 };
 
 module.exports = PlaneController;

@@ -3,6 +3,10 @@ var ChopperMovement = function(sprite){
   this.chopper = sprite;
   this.maxSpeed = 5;
   this.minSpeed = 0;
+  this.minX = 50;
+  this.maxX = 750;
+  this.minY = 25;
+  this.maxY = 575;
   this.speedIncrement = 0.1;
   this.speedDecrement = 0.04;
   this.rotationIncrement = 0.03;
@@ -14,7 +18,7 @@ var ChopperMovement = function(sprite){
 ChopperMovement.prototype.reset = function(){
   this.chopper.anchor.x = 0.5;
   this.chopper.anchor.y = 0.5;
-  this.chopper.position.x = 200;
+  this.chopper.position.x = 400;
   this.chopper.position.y = 150;
   this.rotation = 0;
   this.speed = {
@@ -48,9 +52,29 @@ ChopperMovement.prototype.increaseSpeed = function(direction){
   }
 };
 
+ChopperMovement.prototype.preventBoundaryViolation = function(){
+  if(this.chopper.position.x > this.maxX){
+    this.chopper.position.x = this.maxX;
+    this.speed.right = 0;
+  }
+  if(this.chopper.position.x < this.minX){
+    this.chopper.position.x = this.minX;
+    this.speed.left = 0;
+  }
+  if(this.chopper.position.y > this.maxY){
+    this.chopper.position.y = this.maxY;
+    this.speed.down = 0;
+  }
+  if(this.chopper.position.y < this.minY){
+    this.chopper.position.y = this.minY;
+    this.speed.up = 0;
+  }
+};
+
 ChopperMovement.prototype.move = function(){
   this.chopper.position.x += (this.speed.right - this.speed.left);
   this.chopper.position.y += (this.speed.down - this.speed.up);
+  this.preventBoundaryViolation();
   this.chopper.rotation = this.rotation;
 };
 

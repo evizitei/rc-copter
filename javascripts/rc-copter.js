@@ -16,15 +16,12 @@ var chopperTexture = PIXI.Texture.fromImage("chopper.png");
 var airplaneTexture = PIXI.Texture.fromImage("plane.png");
 var background = new PIXI.Sprite(backgroundTexture);
 var chopper = new PIXI.Sprite(chopperTexture);
-var plane1 = new PIXI.Sprite(airplaneTexture);
-var plane2 = new PIXI.Sprite(airplaneTexture);
-
+var planeCount = 4;
+var planeSprites = [];
+var planes = [];
 //build motion and collision controllers
 var collisionManager = new CollisionDetector();
 var chopMovement = new ChopperMovement(chopper);
-var oncomingPlane = new PlaneController(plane1, 'right');
-var overtakingPlane = new PlaneController(plane2, 'left');
-var planes = [oncomingPlane, overtakingPlane];
 
 var renderView = function(){
   var scoreLabel = document.getElementById("score");
@@ -63,8 +60,20 @@ background.scale.y = 1.25;
 
 stage.addChild(background);
 stage.addChild(chopper);
-stage.addChild(plane1);
-stage.addChild(plane2);
+
+//build planes
+for(var i = 0; i < 4; i++){
+  var newPlaneSprite = new PIXI.Sprite(airplaneTexture);
+  var direction = 'right';
+  if(Math.random() >= 0.5){
+    direction = 'left';
+  }
+  var newController = new PlaneController(newPlaneSprite, direction);
+  planeSprites.push(newPlaneSprite);
+  planes.push(newController);
+  stage.addChild(newPlaneSprite);
+}
+
 
 keydrown.LEFT.down(function(){ chopMovement.increaseSpeed('left'); });
 keydrown.RIGHT.down(function(){ chopMovement.increaseSpeed('right'); });

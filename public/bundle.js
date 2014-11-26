@@ -70,15 +70,12 @@
 	var airplaneTexture = PIXI.Texture.fromImage("plane.png");
 	var background = new PIXI.Sprite(backgroundTexture);
 	var chopper = new PIXI.Sprite(chopperTexture);
-	var plane1 = new PIXI.Sprite(airplaneTexture);
-	var plane2 = new PIXI.Sprite(airplaneTexture);
-
+	var planeCount = 4;
+	var planeSprites = [];
+	var planes = [];
 	//build motion and collision controllers
 	var collisionManager = new CollisionDetector();
 	var chopMovement = new ChopperMovement(chopper);
-	var oncomingPlane = new PlaneController(plane1, 'right');
-	var overtakingPlane = new PlaneController(plane2, 'left');
-	var planes = [oncomingPlane, overtakingPlane];
 
 	var renderView = function(){
 	  var scoreLabel = document.getElementById("score");
@@ -117,8 +114,20 @@
 
 	stage.addChild(background);
 	stage.addChild(chopper);
-	stage.addChild(plane1);
-	stage.addChild(plane2);
+
+	//build planes
+	for(var i = 0; i < 4; i++){
+	  var newPlaneSprite = new PIXI.Sprite(airplaneTexture);
+	  var direction = 'right';
+	  if(Math.random() >= 0.5){
+	    direction = 'left';
+	  }
+	  var newController = new PlaneController(newPlaneSprite, direction);
+	  planeSprites.push(newPlaneSprite);
+	  planes.push(newController);
+	  stage.addChild(newPlaneSprite);
+	}
+
 
 	keydrown.LEFT.down(function(){ chopMovement.increaseSpeed('left'); });
 	keydrown.RIGHT.down(function(){ chopMovement.increaseSpeed('right'); });
@@ -180,6 +189,10 @@
 	  this.chopper = sprite;
 	  this.maxSpeed = 5;
 	  this.minSpeed = 0;
+	  this.minX = 50;
+	  this.maxX = 750;
+	  this.minY = 25;
+	  this.maxY = 575;
 	  this.speedIncrement = 0.1;
 	  this.speedDecrement = 0.04;
 	  this.rotationIncrement = 0.03;
@@ -191,7 +204,7 @@
 	ChopperMovement.prototype.reset = function(){
 	  this.chopper.anchor.x = 0.5;
 	  this.chopper.anchor.y = 0.5;
-	  this.chopper.position.x = 200;
+	  this.chopper.position.x = 400;
 	  this.chopper.position.y = 150;
 	  this.rotation = 0;
 	  this.speed = {
@@ -225,9 +238,29 @@
 	  }
 	};
 
+	ChopperMovement.prototype.preventBoundaryViolation = function(){
+	  if(this.chopper.position.x > this.maxX){
+	    this.chopper.position.x = this.maxX;
+	    this.speed.right = 0;
+	  }
+	  if(this.chopper.position.x < this.minX){
+	    this.chopper.position.x = this.minX;
+	    this.speed.left = 0;
+	  }
+	  if(this.chopper.position.y > this.maxY){
+	    this.chopper.position.y = this.maxY;
+	    this.speed.down = 0;
+	  }
+	  if(this.chopper.position.y < this.minY){
+	    this.chopper.position.y = this.minY;
+	    this.speed.up = 0;
+	  }
+	};
+
 	ChopperMovement.prototype.move = function(){
 	  this.chopper.position.x += (this.speed.right - this.speed.left);
 	  this.chopper.position.y += (this.speed.down - this.speed.up);
+	  this.preventBoundaryViolation();
 	  this.chopper.rotation = this.rotation;
 	};
 
@@ -271,8 +304,10 @@
 	  this.sprite = sprite;
 	  this.side = side;
 	  this.plane = sprite;
-	  this.lateralSpeed = 4;
-	  this.descentSpeed = 1;
+	  this.lateralSpeed = 0;
+	  this.descentSpeed = 0;
+	  this.maxSpeed = 6;
+	  this.minSpeed = 2.5;
 	  if(this.side === 'right'){
 	    this.plane.scale.x = -1;
 	    this.initX = 900;
@@ -305,7 +340,7 @@
 	PlaneController.prototype.launch = function(){
 	  this.plane.position.x = this.initX;
 	  this.plane.position.y = this.generateHeight();
-	  this.lateralSpeed = (Math.random() * 5) + 2;
+	  this.lateralSpeed = (Math.random() * this.maxSpeed) + this.minSpeed;
 	  this.descentSpeed = Math.random();
 	  this.inFlight = true;
 	};
@@ -344,7 +379,7 @@
 	};
 
 	PlaneController.prototype.generateHeight = function(){
-	  return (Math.random() * 500) + 50;
+	  return (Math.random() * 575) + 25;
 	};
 
 	module.exports = PlaneController;
