@@ -1,13 +1,6 @@
 var ChopperMovement = function(sprite){
+  this.sprite = sprite;
   this.chopper = sprite;
-  this.chopper.anchor.x = 0.5;
-  this.chopper.anchor.y = 0.5;
-  this.speed = {
-    left: 0,
-    right: 0,
-    up: 0,
-    down: 0
-  }
   this.maxSpeed = 5;
   this.minSpeed = 0;
   this.speedIncrement = 0.1;
@@ -15,7 +8,21 @@ var ChopperMovement = function(sprite){
   this.rotationIncrement = 0.03;
   this.rotationDecrement = 0.02;
   this.maxRotation = 0.65;
+  this.reset()
+};
+
+ChopperMovement.prototype.reset = function(){
+  this.chopper.anchor.x = 0.5;
+  this.chopper.anchor.y = 0.5;
+  this.chopper.position.x = 200;
+  this.chopper.position.y = 150;
   this.rotation = 0;
+  this.speed = {
+    left: 0,
+    right: 0,
+    up: 0,
+    down: 0
+  }
 };
 
 ChopperMovement.prototype.increaseSpeed = function(direction){

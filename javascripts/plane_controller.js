@@ -1,13 +1,9 @@
 var PlaneController = function(sprite, side){
+  this.sprite = sprite;
   this.side = side;
   this.plane = sprite;
-  this.plane.anchor.x = 0.5;
-  this.plane.anchor.y = 0.5;
-  this.plane.position.x = 900;
-  this.plane.position.y = 50;
   this.lateralSpeed = 4;
   this.descentSpeed = 1;
-  this.inFlight = false;
   if(this.side === 'right'){
     this.plane.scale.x = -1;
     this.initX = 900;
@@ -15,6 +11,15 @@ var PlaneController = function(sprite, side){
     this.plane.scale.x = 1;
     this.initX = -100;
   }
+  this.reset();
+};
+
+PlaneController.prototype.reset = function(){
+  this.inFlight = false;
+  this.plane.anchor.x = 0.5;
+  this.plane.anchor.y = 0.5;
+  this.plane.position.x = 900;
+  this.plane.position.y = 50;
 };
 
 PlaneController.prototype.onTick = function(){

@@ -44,7 +44,7 @@
 /* 0 */
 /***/ function(module, exports, __webpack_require__) {
 
-	__webpack_require__(6);
+	__webpack_require__(7);
 	__webpack_require__(1);
 
 
@@ -52,17 +52,18 @@
 /* 1 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var PIXI = __webpack_require__(4);
-	var keydrown = __webpack_require__(5);
+	var PIXI = __webpack_require__(5);
+	var keydrown = __webpack_require__(6);
 	var ChopperMovement = __webpack_require__(2);
 	var PlaneController = __webpack_require__(3);
+	var CollisionDetector = __webpack_require__(4);
 
 	var stage = new PIXI.Stage(0x66FF99);
 	var renderer = new PIXI.CanvasRenderer(800, 600);
+	var gameOver = false;
 	var requestAnimFrame = window.requestAnimationFrame;
 
-	document.body.appendChild(renderer.view);
-
+	//build all textures and sprites
 	var backgroundTexture = PIXI.Texture.fromImage("background.jpg");
 	var chopperTexture = PIXI.Texture.fromImage("chopper.png");
 	var airplaneTexture = PIXI.Texture.fromImage("plane.png");
@@ -71,23 +72,44 @@
 	var plane1 = new PIXI.Sprite(airplaneTexture);
 	var plane2 = new PIXI.Sprite(airplaneTexture);
 
+	//build motion and collision controllers
+	var collisionManager = new CollisionDetector();
+	var chopMovement = new ChopperMovement(chopper);
+	var oncomingPlane = new PlaneController(plane1, 'right');
+	var overtakingPlane = new PlaneController(plane2, 'left');
+	var planes = [oncomingPlane, overtakingPlane];
+
+	var resetGame = function(){
+	  gameOver = false;
+	  chopMovement.reset();
+	  planes.forEach(function(controller){
+	    controller.reset();
+	  });
+	};
+
+	var buildResetButton = function(){
+	  var button = document.createElement('button');
+	  button.innerHTML = 'Reset';
+	  button.onclick = function(){
+	    resetGame();
+	    return false;
+	  };
+	  document.body.appendChild(button);
+	};
+
+	document.body.appendChild(renderer.view);
+	buildResetButton();
+
 	background.position.x = 0;
 	background.position.y = 0;
 	background.scale.x = 1.25;
 	background.scale.y = 1.25;
-
-	chopper.position.x = 200;
-	chopper.position.y = 150;
 
 	stage.addChild(background);
 	stage.addChild(chopper);
 	stage.addChild(plane1);
 	stage.addChild(plane2);
 
-	var chopMovement = new ChopperMovement(chopper);
-	var oncomingPlane = new PlaneController(plane1, 'right');
-	var overtakingPlane = new PlaneController(plane2, 'left');
-	var planes = [oncomingPlane, overtakingPlane];
 
 	keydrown.LEFT.down(function(){ chopMovement.increaseSpeed('left'); });
 	keydrown.RIGHT.down(function(){ chopMovement.increaseSpeed('right'); });
@@ -115,11 +137,22 @@
 	  });
 	};
 
+
+	var checkCollisions = function(chopper, obstacles){
+	  obstacleSprites = obstacles.map(function(obst){ return obst.sprite; });
+	  if(collisionManager.areCollisions(chopper.sprite, obstacleSprites)){
+	    gameOver = true;
+	  }
+	}
+
 	var animate = function () {
+	  if(!gameOver){
+	    processChopperMoves();
+	    processPlaneMoves(planes);
+	    checkCollisions(chopMovement, planes);
+	    renderer.render(stage);
+	  }
 	  requestAnimFrame(animate);
-	  processChopperMoves();
-	  processPlaneMoves(planes);
-	  renderer.render(stage);
 	};
 
 	requestAnimFrame(animate);
@@ -130,15 +163,8 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var ChopperMovement = function(sprite){
+	  this.sprite = sprite;
 	  this.chopper = sprite;
-	  this.chopper.anchor.x = 0.5;
-	  this.chopper.anchor.y = 0.5;
-	  this.speed = {
-	    left: 0,
-	    right: 0,
-	    up: 0,
-	    down: 0
-	  }
 	  this.maxSpeed = 5;
 	  this.minSpeed = 0;
 	  this.speedIncrement = 0.1;
@@ -146,7 +172,21 @@
 	  this.rotationIncrement = 0.03;
 	  this.rotationDecrement = 0.02;
 	  this.maxRotation = 0.65;
+	  this.reset()
+	};
+
+	ChopperMovement.prototype.reset = function(){
+	  this.chopper.anchor.x = 0.5;
+	  this.chopper.anchor.y = 0.5;
+	  this.chopper.position.x = 200;
+	  this.chopper.position.y = 150;
 	  this.rotation = 0;
+	  this.speed = {
+	    left: 0,
+	    right: 0,
+	    up: 0,
+	    down: 0
+	  }
 	};
 
 	ChopperMovement.prototype.increaseSpeed = function(direction){
@@ -215,15 +255,11 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var PlaneController = function(sprite, side){
+	  this.sprite = sprite;
 	  this.side = side;
 	  this.plane = sprite;
-	  this.plane.anchor.x = 0.5;
-	  this.plane.anchor.y = 0.5;
-	  this.plane.position.x = 900;
-	  this.plane.position.y = 50;
 	  this.lateralSpeed = 4;
 	  this.descentSpeed = 1;
-	  this.inFlight = false;
 	  if(this.side === 'right'){
 	    this.plane.scale.x = -1;
 	    this.initX = 900;
@@ -231,6 +267,15 @@
 	    this.plane.scale.x = 1;
 	    this.initX = -100;
 	  }
+	  this.reset();
+	};
+
+	PlaneController.prototype.reset = function(){
+	  this.inFlight = false;
+	  this.plane.anchor.x = 0.5;
+	  this.plane.anchor.y = 0.5;
+	  this.plane.position.x = 900;
+	  this.plane.position.y = 50;
 	};
 
 	PlaneController.prototype.onTick = function(){
@@ -289,6 +334,30 @@
 
 /***/ },
 /* 4 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var CollisionDetector = function(){
+	};
+
+	CollisionDetector.prototype.areCollisions = function(targetSprite, obstacles){
+	  collision = false;
+	  obstacles.forEach(function(obstacle){
+	    var xdist = obstacle.position.x - targetSprite.position.x;
+	    if(xdist > ((-obstacle.width + -targetSprite.width)/2) && xdist < ((obstacle.width + targetSprite.width)/2)){
+	      var ydist = obstacle.position.y - targetSprite.position.y;
+	      if(ydist > (-obstacle.height + -targetSprite.height)/2 && ydist < (obstacle.height + targetSprite.height)/2){
+	        collision = true;
+	      }
+	    }
+	  });
+	  return collision;
+	};
+
+	module.exports = CollisionDetector;
+
+
+/***/ },
+/* 5 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -18475,7 +18544,7 @@
 	}).call(this);
 
 /***/ },
-/* 5 */
+/* 6 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/*! keydrown - v1.1.3 - 2014-09-22 - http://jeremyckahn.github.com/keydrown */
@@ -18909,16 +18978,16 @@
 
 
 /***/ },
-/* 6 */
+/* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(7);
+	var content = __webpack_require__(8);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
-	var update = __webpack_require__(8)(content, {});
+	var update = __webpack_require__(9)(content, {});
 	// Hot Module Replacement
 	if(false) {
 		// When the styles change, update the <style> tags
@@ -18932,14 +19001,14 @@
 	}
 
 /***/ },
-/* 7 */
+/* 8 */
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(9)();
+	exports = module.exports = __webpack_require__(10)();
 	exports.push([module.id, "body {\n  margin: 0;\n  padding: 0;\n  background-color: #000000;\n}\n\ncanvas {\n  margin-left: 50px;\n  margin-top: 50px;\n}\n", ""]);
 
 /***/ },
-/* 8 */
+/* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -19135,7 +19204,7 @@
 
 
 /***/ },
-/* 9 */
+/* 10 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = function() {

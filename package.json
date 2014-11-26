@@ -1,6 +1,6 @@
 {
   "name": "rc-copter",
-  "version": "0.1.0",
+  "version": "0.1.0-1",
   "description": "a game to play with pixi.js",
   "author": "Ethan Vizitei <ethan.vizitei@gmail.com>",
   "scripts": {
