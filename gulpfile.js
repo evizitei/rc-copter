@@ -1,5 +1,4 @@
 var gulp = require('gulp');
-var gutil = require('gulp-util');
 var jshint = require('gulp-jshint');
 var mocha = require('gulp-mocha');
 var stylish = require('jshint-stylish-ex');
@@ -7,6 +6,7 @@ var webpack = require('gulp-webpack');
 var webpackConfig = require('./webpack.config.js');
 
 gulp.task('webpack:build', function(){
+  "use strict";
   var myConfig = Object.create(webpackConfig);
   return gulp.src('lib/entry.js')
     .pipe(webpack(myConfig))
@@ -14,6 +14,7 @@ gulp.task('webpack:build', function(){
 });
 
 gulp.task('lint', function(){
+  "use strict";
   var source = ['./lib/*.js', './test/*.js'];
   return gulp.src(source)
     .pipe(jshint('.jshintrc'))
@@ -22,6 +23,7 @@ gulp.task('lint', function(){
 
 
 gulp.task('test', function () {
+  "use strict";
   return gulp.src('test/test.js', {read: false})
     .pipe(mocha({reporter: 'nyan'}));
 });

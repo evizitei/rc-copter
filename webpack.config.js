@@ -12,4 +12,4 @@ module.exports = {
   plugins: [
     new webpack.optimize.UglifyJsPlugin({minimize: true})
   ]
-}
+};
