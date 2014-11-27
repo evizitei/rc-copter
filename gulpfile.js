@@ -13,7 +13,7 @@ gulp.task('webpack:build', function(){
 });
 
 gulp.task('lint', function(){
-  var source = ['./lib/*.js', '!./lib/*.min.js'];
+  var source = ['./lib/*.js', './test/*.js'];
   return gulp.src(source)
     .pipe(jshint('.jshintrc'))
     .pipe(jshint.reporter( stylish ));
