@@ -1,6 +1,7 @@
 var gulp = require('gulp');
 var gutil = require('gulp-util');
 var jshint = require('gulp-jshint');
+var mocha = require('gulp-mocha');
 var stylish = require('jshint-stylish-ex');
 var webpack = require('gulp-webpack');
 var webpackConfig = require('./webpack.config.js');
@@ -17,4 +18,10 @@ gulp.task('lint', function(){
   return gulp.src(source)
     .pipe(jshint('.jshintrc'))
     .pipe(jshint.reporter( stylish ));
+});
+
+
+gulp.task('test', function () {
+  return gulp.src('test/test.js', {read: false})
+    .pipe(mocha({reporter: 'nyan'}));
 });
