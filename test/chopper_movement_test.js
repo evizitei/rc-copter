@@ -17,7 +17,7 @@ describe("ChopperMovement", function(){
   });
 
   describe("#preventBoundaryViolation", function(){
-    it('leaves speed and position alone if no violation', function(){
+    it("leaves speed and position alone if no violation", function(){
       sprite.position = {x: 400, y: 300};
       mover.speed = {right: 5, left: 0, down: 5, up: 0};
       mover.preventBoundaryViolation();
