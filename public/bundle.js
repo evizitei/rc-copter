@@ -88,11 +88,13 @@
 	gameOverSprite.visible = false;
 
 	var renderView = function(){
+	  "use strict";
 	  var scoreLabel = document.getElementById("score");
 	  scoreLabel.innerHTML = score;
 	};
 
 	var resetGame = function(){
+	  "use strict";
 	  gameOver = false;
 	  gameOverSprite.visible = false;
 	  score = 0;
@@ -104,8 +106,9 @@
 	};
 
 	var buildResetButton = function(){
-	  var button = document.createElement('button');
-	  button.innerHTML = 'Reset';
+	  "use strict";
+	  var button = document.createElement("button");
+	  button.innerHTML = "Reset";
 	  button.onclick = function(){
 	    resetGame();
 	    return false;
@@ -127,11 +130,11 @@
 	stage.addChild(chopper);
 
 	//build planes
-	for(var i = 0; i < 4; i++){
+	for(var i = 0; i < planeCount; i++){
 	  var newPlaneSprite = new PIXI.Sprite(airplaneTexture);
-	  var direction = 'right';
+	  var direction = "right";
 	  if(Math.random() >= 0.5){
-	    direction = 'left';
+	    direction = "left";
 	  }
 	  var newController = new PlaneController(newPlaneSprite, direction);
 	  planeSprites.push(newPlaneSprite);
@@ -142,12 +145,28 @@
 	stage.addChild(gameOverSprite);
 
 
-	keydrown.LEFT.down(function(){ chopMovement.increaseSpeed('left'); });
-	keydrown.RIGHT.down(function(){ chopMovement.increaseSpeed('right'); });
-	keydrown.UP.down(function(){ chopMovement.increaseSpeed('up'); });
-	keydrown.DOWN.down(function(){ chopMovement.increaseSpeed('down'); });
+	keydrown.LEFT.down(function(){
+	  "use strict";
+	  chopMovement.increaseSpeed("left");
+	});
+
+	keydrown.RIGHT.down(function(){
+	  "use strict";
+	  chopMovement.increaseSpeed("right");
+	});
+
+	keydrown.UP.down(function(){
+	  "use strict";
+	  chopMovement.increaseSpeed("up");
+	});
+
+	keydrown.DOWN.down(function(){
+	  "use strict";
+	  chopMovement.increaseSpeed("down");
+	});
 
 	var buildKeyStateMap = function(){
+	  "use strict";
 	  return {
 	    up: keydrown.UP.isDown(),
 	    down: keydrown.DOWN.isDown(),
@@ -157,23 +176,27 @@
 	};
 
 	var processChopperMoves = function(){
+	  "use strict";
 	  chopMovement.move();
 	  chopMovement.reduceSpeed(buildKeyStateMap());
 	  keydrown.tick();
 	};
 
 	var onCompleteDodge = function(){
+	  "use strict";
 	  score += 1;
 	};
 
 	var processPlaneMoves = function(controllers){
+	  "use strict";
 	  controllers.forEach(function(plane){
 	    plane.onTick(function(){ onCompleteDodge(); });
 	  });
 	};
 
 	var checkCollisions = function(chopper, obstacles){
-	  obstacleSprites = obstacles.map(function(obst){ return obst.sprite; });
+	  "use strict";
+	  var obstacleSprites = obstacles.map(function(obst){ return obst.sprite; });
 	  if(collisionManager.areCollisions(chopper.sprite, obstacleSprites)){
 	    gameOver = true;
 	    gameOverSprite.visible = true;
@@ -181,6 +204,7 @@
 	};
 
 	var animate = function () {
+	  "use strict";
 	  if(!gameOver){
 	    processChopperMoves();
 	    processPlaneMoves(planes);
@@ -199,6 +223,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var ChopperMovement = function(sprite){
+	  "use strict";
 	  this.sprite = sprite;
 	  this.chopper = sprite;
 	  this.maxSpeed = 5;
@@ -212,10 +237,11 @@
 	  this.rotationIncrement = 0.03;
 	  this.rotationDecrement = 0.02;
 	  this.maxRotation = 0.65;
-	  this.reset()
+	  this.reset();
 	};
 
 	ChopperMovement.prototype.reset = function(){
+	  "use strict";
 	  this.chopper.anchor.x = 0.5;
 	  this.chopper.anchor.y = 0.5;
 	  this.chopper.position.x = 400;
@@ -226,23 +252,24 @@
 	    right: 0,
 	    up: 0,
 	    down: 0
-	  }
+	  };
 	};
 
 	ChopperMovement.prototype.increaseSpeed = function(direction){
+	  "use strict";
 	  if(this.speed[direction] >= this.maxSpeed){
 	    this.speed[direction] = this.maxSpeed;
 	  }else{
 	    this.speed[direction] += this.speedIncrement;
 	  }
 
-	  if(direction === 'right'){
+	  if(direction === "right"){
 	    if(this.rotation >= this.maxRotation){
 	      this.rotation = this.maxRotation;
 	    }else{
 	      this.rotation += this.rotationIncrement;
 	    }
-	  }else if(direction === 'left'){
+	  }else if(direction === "left"){
 	    this.rotation -= this.rotationIncrement;
 	    if(this.rotation <= (this.maxRotation * -1)){
 	      this.rotation = this.maxRotation * -1;
@@ -253,6 +280,7 @@
 	};
 
 	ChopperMovement.prototype.preventBoundaryViolation = function(){
+	  "use strict";
 	  if(this.chopper.position.x > this.maxX){
 	    this.chopper.position.x = this.maxX;
 	    this.speed.right = 0;
@@ -272,6 +300,7 @@
 	};
 
 	ChopperMovement.prototype.move = function(){
+	  "use strict";
 	  this.chopper.position.x += (this.speed.right - this.speed.left);
 	  this.chopper.position.y += (this.speed.down - this.speed.up);
 	  this.preventBoundaryViolation();
@@ -279,6 +308,7 @@
 	};
 
 	ChopperMovement.prototype.reduceSpeed = function(keyMap){
+	  "use strict";
 	  //adjust speed
 	  Object.keys(keyMap).forEach(function(key){
 	    if((!keyMap[key]) && this.speed[key] > 0){
@@ -289,7 +319,7 @@
 	  }, this);
 
 	  //adjust rotation
-	  if((!keyMap['right']) && this.rotation > 0){
+	  if((!keyMap.right) && this.rotation > 0){
 	    if(this.rotation < this.rotationDecrement){
 	      this.rotation = 0;
 	    }else{
@@ -297,7 +327,7 @@
 	    }
 	  }
 
-	  if((!keyMap['left']) && this.rotation < 0){
+	  if((!keyMap.left) && this.rotation < 0){
 	    if(this.rotation > (this.rotationDecrement * -1)){
 	      this.rotation = 0;
 	    }else{
@@ -315,6 +345,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var PlaneController = function(sprite, side){
+	  "use strict";
 	  this.sprite = sprite;
 	  this.side = side;
 	  this.plane = sprite;
@@ -322,7 +353,7 @@
 	  this.descentSpeed = 0;
 	  this.maxSpeed = 6;
 	  this.minSpeed = 2.5;
-	  if(this.side === 'right'){
+	  if(this.side === "right"){
 	    this.plane.scale.x = -1;
 	    this.initX = 900;
 	  }else{
@@ -333,6 +364,7 @@
 	};
 
 	PlaneController.prototype.reset = function(){
+	  "use strict";
 	  this.inFlight = false;
 	  this.plane.anchor.x = 0.5;
 	  this.plane.anchor.y = 0.5;
@@ -341,6 +373,7 @@
 	};
 
 	PlaneController.prototype.onTick = function(dodgedCallback){
+	  "use strict";
 	  if(!this.inFlight){
 	    this.launch();
 	  }else{
@@ -348,10 +381,11 @@
 	    if(!ableToMove){
 	      dodgedCallback.call();
 	    }
-	  };
+	  }
 	};
 
 	PlaneController.prototype.launch = function(){
+	  "use strict";
 	  this.plane.position.x = this.initX;
 	  this.plane.position.y = this.generateHeight();
 	  this.lateralSpeed = (Math.random() * this.maxSpeed) + this.minSpeed;
@@ -360,6 +394,7 @@
 	};
 
 	PlaneController.prototype.move = function(){
+	  "use strict";
 	  if(this.inFlight){
 	    if(this.isInFrame()){
 	      this.moveOnTick();
@@ -372,7 +407,8 @@
 	};
 
 	PlaneController.prototype.moveOnTick = function(){
-	  if(this.side === 'right'){
+	  "use strict";
+	  if(this.side === "right"){
 	    this.plane.position.x -= this.lateralSpeed;
 	  }else{
 	    this.plane.position.x += this.lateralSpeed;
@@ -381,11 +417,12 @@
 	};
 
 	PlaneController.prototype.isInFrame = function(){
+	  "use strict";
 	  if(this.plane.position.y > 625){
 	    return false;
 	  }
 
-	  if(this.side === 'right'){
+	  if(this.side === "right"){
 	    return this.plane.position.x > -50;
 	  }else{
 	    return this.plane.position.x < 850;
@@ -393,6 +430,7 @@
 	};
 
 	PlaneController.prototype.generateHeight = function(){
+	  "use strict";
 	  return (Math.random() * 575) + 25;
 	};
 
@@ -404,10 +442,12 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var CollisionDetector = function(){
+	  "use strict";
 	};
 
 	CollisionDetector.prototype.areCollisions = function(targetSprite, obstacles){
-	  collision = false;
+	  "use strict";
+	  var collision = false;
 	  obstacles.forEach(function(obstacle){
 	    var xdist = obstacle.position.x - targetSprite.position.x;
 	    if(xdist > ((-obstacle.width + -targetSprite.width)/2) && xdist < ((obstacle.width + targetSprite.width)/2)){
